@@ -37,10 +37,14 @@ import { getActiveTrack } from 'react-native-track-player/lib/trackPlayer';
   
   export async function setupPlayer() {
     let isSetup = false;
+    TrackPlayer.remove();
+
     try {
       await TrackPlayer.getActiveTrackIndex();
       isSetup = true;
       console.log("Active track!");
+      
+      
     }
     catch {
       await TrackPlayer.setupPlayer();
@@ -67,12 +71,22 @@ import { getActiveTrack } from 'react-native-track-player/lib/trackPlayer';
       isSetup = true;
     }
     finally {
+      let queue = await TrackPlayer.getQueue();
+      console.log(queue);
 
       // Load all tracks
-      console.log("loading all tracks");
-      await Object.keys(tracks).forEach(id => {
-        TrackPlayer.add(tracks[id]);
-      })
+      console.log("Loading all tracks");
+
+      Object.keys(tracks).forEach((id, index) => {
+        if (queue[index] != undefined){
+          if (queue[index].id == id)
+            console.log("Track " + id + " already loaded");
+          else
+            TrackPlayer.add(tracks[id]);
+        } else {
+          TrackPlayer.add(tracks[id]);
+        } 
+      });
       
       TrackPlayer.setRepeatMode(RepeatMode.Track);
       TrackPlayer.play();
@@ -91,8 +105,8 @@ import { getActiveTrack } from 'react-native-track-player/lib/trackPlayer';
     let stateRes = await TrackPlayer.getPlaybackState();
     let actTrackIndex = await TrackPlayer.getActiveTrackIndex();
 
-    console.log("Angle: " + angle)
-
+    //console.log("Angle: " + angle)
+    // Flat phone
     if (angle < 10 || angle == undefined){
       if (stateRes.state == "playing"){
         console.log("Stopping track player")
@@ -104,8 +118,8 @@ import { getActiveTrack } from 'react-native-track-player/lib/trackPlayer';
     for (let i = 0; i < 4; i++){
       if ((angle > (10*(i+1)) && angle < (10*(i+2)) ) || (i == 3 && angle > 40)){
         if (stateRes.state != "playing"){
-          TrackPlayer.skip(i);
-          TrackPlayer.play();
+          TrackPlayer.skip(i); // https://rntp.dev/docs/api/functions/queue
+          TrackPlayer.play(); // https://rntp.dev/docs/api/functions/player
         }
         if (i != actTrackIndex){
           TrackPlayer.skip(i);
