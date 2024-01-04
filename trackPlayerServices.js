@@ -1,5 +1,6 @@
 
 // https://blog.logrocket.com/react-native-track-player-complete-guide/
+import { KeyboardAvoidingViewComponent } from 'react-native';
 import TrackPlayer, {
     AppKilledPlaybackBehavior,
     State,
@@ -7,12 +8,39 @@ import TrackPlayer, {
     RepeatMode,
     Event
   } from 'react-native-track-player';
+import { getActiveTrack } from 'react-native-track-player/lib/trackPlayer';
+
+  const durTilt = 2;
+  const tracks = {
+    '1click': {
+      id: '1click',
+      url: require('./assets/1click.wav'),
+      duration: durTilt,
+    },
+    '2click': {
+      id: '2click',
+      url: require('./assets/2click.wav'),
+      duration: durTilt,
+    },
+    '3click': {
+      id: '3click',
+      url: require('./assets/3click.wav'),
+      duration: durTilt,
+    },
+    '4click': {
+      id: '4click',
+      url: require('./assets/4click.wav'),
+      duration: durTilt,
+    }
+  }
+  let prevTrack;
   
   export async function setupPlayer() {
     let isSetup = false;
     try {
-      await TrackPlayer.getCurrentTrack();
+      await TrackPlayer.getActiveTrackIndex();
       isSetup = true;
+      console.log("Active track!");
     }
     catch {
       await TrackPlayer.setupPlayer();
@@ -24,14 +52,14 @@ import TrackPlayer, {
         capabilities: [
           Capability.Play,
           Capability.Pause,
-          Capability.SkipToNext,
-          Capability.SkipToPrevious,
-          Capability.SeekTo,
+          //Capability.SkipToNext,
+          //Capability.SkipToPrevious,
+          //Capability.SeekTo,
         ],
         compactCapabilities: [
           Capability.Play,
           Capability.Pause,
-          Capability.SkipToNext,
+          //Capability.SkipToNext,
         ],
         progressUpdateEventInterval: 2,
       });
@@ -39,33 +67,64 @@ import TrackPlayer, {
       isSetup = true;
     }
     finally {
+
+      // Load all tracks
+      console.log("loading all tracks");
+      await Object.keys(tracks).forEach(id => {
+        TrackPlayer.add(tracks[id]);
+      })
+      
+      TrackPlayer.setRepeatMode(RepeatMode.Track);
+      TrackPlayer.play();
+
+      let queuedTracks = await TrackPlayer.getQueue();
+      console.log(queuedTracks);
+
       return isSetup;
     }
   }
-  
-  export async function addTracks() {
-    await TrackPlayer.add([
-      {
-        id: String(Math.random()),
-        //url: require('./assets/03KingKunta.wav'), // mp3 audios do not work?
-        url: require('./assets/click.wav'),
-        // title: 'King Kunta',
-        // artist: 'Kendrik Lamar',
-        // duration: 60,
-      }
-    ]);
-    await TrackPlayer.setRepeatMode(RepeatMode.Off);
-  }
+
+
+
 
   export async function playTrack(angle){
-    let res = await TrackPlayer.getPlaybackState();
-    console.log("Playing " +  res.state + ", angle: " + angle);
+    let stateRes = await TrackPlayer.getPlaybackState();
+    let actTrackIndex = await TrackPlayer.getActiveTrackIndex();
 
-    TrackPlayer.reset();
-    await addTracks();
-    TrackPlayer.play();
+    console.log("Angle: " + angle)
+
+    if (angle < 10 || angle == undefined){
+      if (stateRes.state == "playing"){
+        console.log("Stopping track player")
+        await TrackPlayer.stop();
+      }
+      return;
+    } 
+    
+    for (let i = 0; i < 4; i++){
+      if ((angle > (10*(i+1)) && angle < (10*(i+2)) ) || (i == 3 && angle > 40)){
+        if (stateRes.state != "playing"){
+          TrackPlayer.skip(i);
+          TrackPlayer.play();
+        }
+        if (i != actTrackIndex){
+          TrackPlayer.skip(i);
+        }
+      }
+    }
+    return;
+
+      
+    
+
   }
   
+  // Used in index.js (runs in background)
   export async function playbackService() {
     // TODO: Attach remote event handlers
+    TrackPlayer.addEventListener(Event.RemotePlay, () => TrackPlayer.play());
+
+    TrackPlayer.addEventListener(Event.RemotePause, () => TrackPlayer.pause());
+
   }
+

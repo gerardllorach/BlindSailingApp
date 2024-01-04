@@ -10,7 +10,7 @@ import {
 
 // Audio
 import TrackPlayer,  {State} from 'react-native-track-player';
-import { setupPlayer, addTracks, playTrack } from './trackPlayerServices';
+import { setupPlayer, playTrack } from './trackPlayerServices';
 
 // Sensors
 import {
@@ -48,14 +48,16 @@ function App() {
       next: ({ qx, qy, qz, qw, pitch, roll, yaw, timestamp }) => {
         setOrientationData({ pitch, roll, yaw });
         setHasOrientation(true);
-        let pitchDeg = Math.abs(pitch) * 180 / Math.PI;
-        if (pitchDeg > 10){ 
-          //TrackPlayer.getPlaybackState().then( res => {
-            //console.log("State: " + res.state + ". Ended = " + State.Ended);
-            //if (res.state == State.Ended)
-              playTrack(pitchDeg.toFixed());
-          //});
-        }
+        // To degress and absolute
+        let pitchDeg = (Math.abs(pitch) * 180 / Math.PI);
+        let rollDeg = (Math.abs(roll) * 180 / Math.PI);
+        // Only 90º are relevant (180 means the phone is turned upside down)
+        pitchDeg = pitchDeg > 90 ? 180 - pitchDeg : pitchDeg;
+        rollDeg = rollDeg > 90 ? 180 - rollDeg: rollDeg;
+        // Maximum of the two
+        let maxAngle = Math.max(pitchDeg, rollDeg);
+        playTrack(maxAngle.toFixed());
+
       },
       error: error => {
         console.error(error);
@@ -108,10 +110,10 @@ function App() {
     async function setup() {
       let isSetup = await setupPlayer();
 
-      const queue = await TrackPlayer.getQueue();
-      if(isSetup && queue.length <= 0) {
-        await addTracks();
-      }
+      // const queue = await TrackPlayer.getQueue();
+      // if(isSetup && queue.length <= 0) {
+      //   await addTracks();
+      // }
 
       setIsPlayerReady(isSetup);
     }
@@ -151,7 +153,7 @@ function App() {
 
 
       <Button title="Play" color="#777" onPress={() => {
-        playTrack();
+        playTrack(11);
         }}/>
     </SafeAreaView>
   );
