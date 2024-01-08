@@ -10,7 +10,7 @@ import {
 
 // Audio
 import TrackPlayer,  {State} from 'react-native-track-player';
-import { setupPlayer, playTrack } from './trackPlayerServices';
+import { setupPlayer, playTrack, changeMode, appModeName } from './trackPlayerServices';
 
 // Sensors
 import {
@@ -25,9 +25,9 @@ import {
 import { reset } from 'react-native-track-player/lib/trackPlayer';
 
 
-setUpdateIntervalForType(SensorTypes.orientation, 100);
-setUpdateIntervalForType(SensorTypes.accelerometer, 100);
-setUpdateIntervalForType(SensorTypes.magnetometer, 100);
+setUpdateIntervalForType(SensorTypes.orientation, 250);
+setUpdateIntervalForType(SensorTypes.accelerometer, 250);
+setUpdateIntervalForType(SensorTypes.magnetometer, 250);
 
 
 function App() {
@@ -152,9 +152,13 @@ function App() {
 
 
 
-      <Button title="Play" color="#777" onPress={() => {
-        playTrack(11);
-        }}/>
+      <Button title={appModeName} color="#777" 
+        accessibilityLabel="App mode button"
+        accessibilityRole="button"
+        accessibilityHint="Press the button to change the mode of the app"
+        onPress={() => {
+          changeMode();
+          }}/>
     </SafeAreaView>
   );
 }

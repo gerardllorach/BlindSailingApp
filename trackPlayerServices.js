@@ -10,6 +10,9 @@ import TrackPlayer, {
   } from 'react-native-track-player';
 import { getActiveTrack } from 'react-native-track-player/lib/trackPlayer';
 
+
+  let appMode = 1;
+  export let appModeName = 'TILT';
   const durTilt = 2;
   const tracks = {
     '1click': {
@@ -102,6 +105,11 @@ import { getActiveTrack } from 'react-native-track-player/lib/trackPlayer';
 
 
   export async function playTrack(angle){
+    // Skip if mode is 0
+    if (appMode == 0){
+      angle = undefined;
+    }
+
     let stateRes = await TrackPlayer.getPlaybackState();
     let actTrackIndex = await TrackPlayer.getActiveTrackIndex();
 
@@ -132,13 +140,37 @@ import { getActiveTrack } from 'react-native-track-player/lib/trackPlayer';
     
 
   }
+
+// Change mode
+  export function changeMode() {
+    appMode++;
+    appMode = appMode % 2; // Two modes
+    if (appMode == 0)
+      appModeName = 'OFF';
+    else if (appMode == 1)
+      appModeName = 'TILT';
+
+    console.log("MODE: " + appMode);
+  }
+  
   
   // Used in index.js (runs in background)
   export async function playbackService() {
-    // TODO: Attach remote event handlers
-    TrackPlayer.addEventListener(Event.RemotePlay, () => TrackPlayer.play());
 
-    TrackPlayer.addEventListener(Event.RemotePause, () => TrackPlayer.pause());
+    // TODO: Attach remote event handlers
+    TrackPlayer.addEventListener(Event.RemotePlay, () => {
+      console.log("PLAY BUTTON PRESS");
+      changeMode();
+      //TrackPlayer.play();
+    });
+
+    TrackPlayer.addEventListener(Event.RemotePause, () => {
+      console.log("PAUSE BUTTON PRESS");
+      changeMode();
+      //TrackPlayer.pause();
+    });
+
+    
 
   }
 
