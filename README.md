@@ -55,6 +55,26 @@ Now that you have successfully run the app, let's modify it.
 
    For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
 
+## Release
+# Working method for release
+$ react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/
+
+$ cd android
+$ ./gradlew assembleDebug
+
+Then copy file from app/build/outputs/apk/debug/app-debug.apk to your phone
+Remember that trackPlayer.ts needs to be modified
+https://github.com/doublesymmetry/react-native-track-player/pull/2194/files
+
+
+# This worked once and later it did not work
+$ npx react-native build-android --mode=release
+$ npm run android -- --mode="release"
+
+Audio not playing in release
+https://github.com/doublesymmetry/react-native-track-player/issues/2101
+https://github.com/doublesymmetry/react-native-track-player/pull/2194/files
+
 ## Congratulations! :tada:
 
 You've successfully run and modified your React Native App. :partying_face:

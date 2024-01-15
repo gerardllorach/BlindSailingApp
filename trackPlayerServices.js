@@ -40,10 +40,11 @@ import { getActiveTrack } from 'react-native-track-player/lib/trackPlayer';
   
   export async function setupPlayer() {
     let isSetup = false;
-    TrackPlayer.remove();
+    
 
     try {
       await TrackPlayer.getActiveTrackIndex();
+      TrackPlayer.remove();
       isSetup = true;
       console.log("Active track!");
       
