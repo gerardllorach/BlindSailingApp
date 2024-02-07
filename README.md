@@ -14,8 +14,17 @@ a - run on Android
 ```
 This takes 2-3 min. Your app should open automatically on the phone. You should be able to see the console.logs of the app on the terminal.
 
+Modify App.js and trackPlayerServices.js
 
+## Release
+$ react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/
 
+$ cd android
+$ ./gradlew assembleDebug
+
+Then copy file from app/build/outputs/apk/debug/app-debug.apk to your phone
+Remember that trackPlayer.ts needs to be modified
+https://github.com/doublesymmetry/react-native-track-player/pull/2194/files
 
 
 
