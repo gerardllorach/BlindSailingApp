@@ -1,6 +1,34 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Instructions
+Open terminal (Ctrl + ñ).
+
+Connect android phone to computer.
+
+Configure your phone to be in developer mode. USB debugging ON, Install via USB ON, USB debugging (Security Settings ON): https://developer.android.com/studio/debug/dev-options
+
+```bash
+npm start
+```
+In the Metro terminal press "a"
+```bash
+a - run on Android
+```
+This takes 2-3 min. Your app should open automatically on the phone. You should be able to see the console.logs of the app on the terminal.
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Getting Started
+
+This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
 >**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
 
@@ -54,6 +82,7 @@ Now that you have successfully run the app, let's modify it.
 2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
 
    For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
+
 
 ## Release
 # Working method for release
