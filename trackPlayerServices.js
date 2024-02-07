@@ -15,6 +15,11 @@ import { getActiveTrack } from 'react-native-track-player/lib/trackPlayer';
   export let appModeName = 'TILT';
   const durTilt = 2;
   const tracks = {
+    'silence1s': {
+      id: 'silence1s',
+      url: require('./assets/silence1s.wav'),
+      duration: durTilt,
+    },
     '1click': {
       id: '1click',
       url: require('./assets/1click.wav'),
@@ -36,7 +41,7 @@ import { getActiveTrack } from 'react-native-track-player/lib/trackPlayer';
       duration: durTilt,
     }
   }
-  let prevTrack;
+  let trackIndices;
   
   export async function setupPlayer() {
     let isSetup = false;
@@ -76,27 +81,30 @@ import { getActiveTrack } from 'react-native-track-player/lib/trackPlayer';
     }
     finally {
       let queue = await TrackPlayer.getQueue();
-      console.log(queue);
+      console.log('-------- START -----------')
+      if (queue.length != 0){
+        await TrackPlayer.reset();
+        console.log("Reseting track player")
+      }
 
       // Load all tracks
       console.log("Loading all tracks");
-
-      Object.keys(tracks).forEach((id, index) => {
-        if (queue[index] != undefined){
-          if (queue[index].id == id)
-            console.log("Track " + id + " already loaded");
-          else
-            TrackPlayer.add(tracks[id]);
-        } else {
-          TrackPlayer.add(tracks[id]);
-        } 
+      Object.keys(tracks).forEach(id => {
+        TrackPlayer.add(tracks[id]);
       });
       
       TrackPlayer.setRepeatMode(RepeatMode.Track);
       TrackPlayer.play();
 
       let queuedTracks = await TrackPlayer.getQueue();
+      console.log('*****');
       console.log(queuedTracks);
+
+      // Set track indices
+      trackIndices = {};
+      for (let i = 0; i < queuedTracks.length; i++){
+        trackIndices[queuedTracks[i].id] = i;
+      }
 
       return isSetup;
     }
@@ -106,35 +114,41 @@ import { getActiveTrack } from 'react-native-track-player/lib/trackPlayer';
 
 
   export async function playTrack(angle){
-    // Skip if mode is 0
-    if (appMode == 0){
-      angle = undefined;
-    }
+    
 
     let stateRes = await TrackPlayer.getPlaybackState();
     let actTrackIndex = await TrackPlayer.getActiveTrackIndex();
 
-    //console.log("Angle: " + angle)
-    // Flat phone
-    if (angle < 10 || angle == undefined){
+    // Skip if mode is 0
+    if (appMode == 0){
       if (stateRes.state == "playing"){
         console.log("Stopping track player")
         await TrackPlayer.stop();
       }
       return;
     } 
+
+    // Transform angle into index of tracks
+    let angleIndex = Math.floor(angle/10);
+    let trackIndex = 0;
+
+    // Select trac
+    if (angleIndex == 0){
+      trackIndex = trackIndices['silence1s'];
+    }else if (angleIndex <= 4)
+      trackIndex = trackIndices[angleIndex + 'click'];
+    else if (angleIndex > 4)
+      trackIndex = trackIndices['4click'];
+
     
-    for (let i = 0; i < 4; i++){
-      if ((angle > (10*(i+1)) && angle < (10*(i+2)) ) || (i == 3 && angle > 40)){
-        if (stateRes.state != "playing"){
-          TrackPlayer.skip(i); // https://rntp.dev/docs/api/functions/queue
-          TrackPlayer.play(); // https://rntp.dev/docs/api/functions/player
-        }
-        if (i != actTrackIndex){
-          TrackPlayer.skip(i);
-        }
-      }
+    if (stateRes.state != "playing"){
+      TrackPlayer.skip(trackIndex); // https://rntp.dev/docs/api/functions/queue
+      TrackPlayer.play(); // https://rntp.dev/docs/api/functions/player
     }
+    if (trackIndex != actTrackIndex){
+      TrackPlayer.skip(trackIndex);
+    }
+
     return;
 
       
